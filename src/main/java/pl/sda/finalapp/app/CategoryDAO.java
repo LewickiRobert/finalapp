@@ -42,7 +42,7 @@ public class CategoryDAO {
                 .collect(Collectors.toList());
 
         Map<Integer, List<Category>> categoriesMap = categories.stream()
-                .collect(Collectors.groupingBy(e ->e.getDepth()));
+                .collect(Collectors.groupingBy(e -> e.getDepth()));
 
 //        for (Category lc : categories) {
 //            if (categoriesMap.containsKey(lc.getDepth())) {
@@ -55,7 +55,28 @@ public class CategoryDAO {
 //            }
 //        }
 
+        populateParentId(0, categoriesMap);
+
         return null;
+    }
+
+    private void populateParentId(int depth, Map<Integer, List<Category>> categoriesMap) {
+        List<Category> children = categoriesMap.get(depth);
+        List<Category> parents = categoriesMap.get(depth - 1);
+        for (Category child : children) {
+            chooseParent(parents, child);
+        }
+    }
+
+    private void chooseParent(List<Category> parents, Category child) {
+        Integer childId = child.getId();
+        Integer parentId = parents.stream()
+                .map(e -> e.getId())
+                .filter(id -> id < childId)
+                .sorted((a, b) -> b - a)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Nie znaleziono rodzica"));
+        child.setParrentId(parentId);
     }
 
 }

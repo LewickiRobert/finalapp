@@ -16,6 +16,10 @@ public class Category {
         return category;
     }
 
+    public void setParrentId(Integer parrentId) {
+        this.parrentId = parrentId;
+    }
+
     public Integer getId() {
         return id;
     }
