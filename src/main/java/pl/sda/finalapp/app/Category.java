@@ -12,8 +12,15 @@ public class Category {
         Category category = new Category();
         category.categoryName = t.trim();
         category.id = ++idCounter;
-        category.depth = t.split("\\S+")[0].length();
+        category.depth = calculateDepth(t);
         return category;
+    }
+
+    private static int calculateDepth(String t) {
+        if(!t.startsWith(" ")){
+            return 0;
+        }
+        return t.split("\\S+")[0].length();
     }
 
     public void setParrentId(Integer parrentId) {
