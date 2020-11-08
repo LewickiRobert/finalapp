@@ -46,4 +46,8 @@ public class Category {
     public static Integer getIdCounter() {
         return idCounter;
     }
+
+    public CategoryDTO toDTO (){
+        return new CategoryDTO(id, parrentId,categoryName);
+    }
 }
