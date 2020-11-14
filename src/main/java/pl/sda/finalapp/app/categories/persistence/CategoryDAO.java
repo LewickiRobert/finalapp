@@ -1,4 +1,4 @@
-package pl.sda.finalapp.app;
+package pl.sda.finalapp.app.categories.persistence;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

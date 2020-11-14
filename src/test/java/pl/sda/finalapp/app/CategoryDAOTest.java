@@ -1,10 +1,10 @@
 package pl.sda.finalapp.app;
 
 import org.junit.jupiter.api.Test;
+import pl.sda.finalapp.app.categories.persistence.Category;
+import pl.sda.finalapp.app.categories.persistence.CategoryDAO;
 
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class CategoryDAOTest {
     @Test

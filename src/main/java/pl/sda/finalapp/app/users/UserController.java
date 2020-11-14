@@ -1,4 +1,4 @@
-package pl.sda.finalapp.app;
+package pl.sda.finalapp.app.users;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,23 +17,31 @@ public class UserController {
     private UserRegistartionValidationService validationService;
 
     @GetMapping("/registration")
-    public String registrationForm(Model model){
+    public String registrationForm(Model model) {
         UserRegistrationDTO userRegistrationDTO = new UserRegistrationDTO();
-        model.addAttribute("userRegistrationData",userRegistrationDTO);
-        model.addAttribute("countryList",Countries.values());
+        model.addAttribute("userRegistrationData", userRegistrationDTO);
+        model.addAttribute("countryList", Countries.values());
         return "registrationPage";
     }
+
     @PostMapping("/registration")
-    public String registrationEffect(UserRegistrationDTO userRegistrationDTO, Model model){
+    public String registrationEffect(UserRegistrationDTO userRegistrationDTO, Model model) {
         Map<String, String> validationExceptionMap = validationService.validateUser(userRegistrationDTO);
-        if(!validationExceptionMap.isEmpty()){
+        if (!validationExceptionMap.isEmpty()) {
             model.addAllAttributes(validationExceptionMap);
-            model.addAttribute("userRegistrationData",userRegistrationDTO);
-            model.addAttribute("countryList",Countries.values());
+            model.addAttribute("userRegistrationData", userRegistrationDTO);
+            model.addAttribute("countryList", Countries.values());
             return "registrationPage";
 
         }
-        userService.registerUser(userRegistrationDTO);
+        try {
+            userService.registerUser(userRegistrationDTO);
+        } catch (EmailAlreadyExistsException e) {
+            model.addAttribute("emailAlreadyExists", e.getMessage());
+            model.addAttribute("userRegistrationData", userRegistrationDTO);
+            model.addAttribute("countryList", Countries.values());
+            return "registrationPage";
+        }
         model.addAttribute("email", userRegistrationDTO.geteMail());
         return "welcomePage";
     }

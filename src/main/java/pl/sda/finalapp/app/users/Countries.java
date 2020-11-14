@@ -1,4 +1,4 @@
-package pl.sda.finalapp.app;
+package pl.sda.finalapp.app.users;
 
 public enum Countries {
     POLAND("Polska","PL"),

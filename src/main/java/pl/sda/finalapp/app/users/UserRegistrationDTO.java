@@ -1,4 +1,4 @@
-package pl.sda.finalapp.app;
+package pl.sda.finalapp.app.users;
 
 public class UserRegistrationDTO {
 

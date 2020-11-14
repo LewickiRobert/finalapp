@@ -1,4 +1,4 @@
-package pl.sda.finalapp.app;
+package pl.sda.finalapp.app.users;
 
 import org.springframework.stereotype.Service;
 

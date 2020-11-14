@@ -1,6 +1,6 @@
-package pl.sda.finalapp.app;
+package pl.sda.finalapp.app.categories.api;
 
-public class CategoryDTO {
+public class CategoryTreeDTO {
 
     public static final String NO_PARENT_VALUE = "#";
     private Integer id;
@@ -9,7 +9,7 @@ public class CategoryDTO {
 
     private CategoryState state;
 
-    public CategoryDTO(Integer id, Integer parrentId, String categoryName) {
+    public CategoryTreeDTO(Integer id, Integer parrentId, String categoryName) {
         this.id = id;
         this.parrentId = parrentId;
         this.categoryName = categoryName;

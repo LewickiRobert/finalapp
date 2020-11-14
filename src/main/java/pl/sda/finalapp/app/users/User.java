@@ -1,4 +1,4 @@
-package pl.sda.finalapp.app;
+package pl.sda.finalapp.app.users;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
