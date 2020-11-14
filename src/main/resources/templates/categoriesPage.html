@@ -11,7 +11,7 @@
 <body>
 <!-- <div th:replace="fragments/header :: header"/> -->
 <form action="/categories">
-    <input type="text" name="input">
+    <input type="text" name="searchText" th:value="${searchText}">
     <button value="search"> szukaj</button>
 </form>
 <div id="container"></div>
