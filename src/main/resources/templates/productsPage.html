@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Produkty</title>
+</head>
+<body>
+<div th:replace="/fragments/header :: headerFragment"></div>
+<table>
+    <tr>
+        <th>Id</th>
+        <th>Tytuł</th>
+        <th>Opis</th>
+        <th>Zdjęcie</th>
+        <th>Cena</th>
+        <th>Typ produktu</th>
+        <th>Kategorie</th>
+        <th>Akcje</th>
+    </tr>
+    <tr th:each="p : ${productsList}">
+        <td th:text="${p.id}">Id</td>
+        <td th:text="${p.title}">Tytuł</td>
+        <td th:text="${p.description}">Opis</td>
+        <td th:text="${p.pictureUrl}">Zdjęcie</td>
+        <td th:text="${p.price}">Cena</td>
+        <td th:text="${p.productType.plName}">Typ produktu</td>
+        <td th:text="${p.category}">Kategorie</td>
+<!--        <td><a th:href="@{'/products/' + ${p.id}}">Edytuj</a></td>-->
+        <td><a th:href="@{/products/{id}(id=${p.id})}">Edytuj</a></td>
+    </tr>
+</table>
+<br>
+
+<hr>
+<form action="/products" method="post">
+    <input name="title" placeholder="Tytuł"><br>
+    <input name="description" placeholder="Opis"><br>
+    <input name="pictureUrl" placeholder="Url zdjęcia"><br>
+    <input name="price" type="number" step="0.01" placeholder="Cena"><br>
+    <select name="productType">
+        <option th:value="''"
+                th:text="'Wybierz typ'">
+
+        </option>
+        <option th:each="t : ${productTypesList}"
+                th:value="${t}"
+                th:text="${t.plName}">
+        </option>
+    </select><br>
+    <select name="categoryId">
+        <option th:value="''"
+                th:text="'Wybierz kategorię'"></option>
+        <option th:each="c : ${categoriesList}"
+                th:value="${c.id}"
+                th:text="${c.id} + ' ' + ${c.categoryName}" id="parentsList"></option>
+    </select><br>
+    <button>Dodaj produkt</button>
+</form>
+</body>
+</html>

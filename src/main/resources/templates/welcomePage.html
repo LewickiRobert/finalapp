@@ -5,6 +5,7 @@
     <title>Witamy</title>
 </head>
 <body>
+<div th:replace="/fragments/header :: headerFragment"></div>
 <p th:text="'Zostałeś zarejestorwany poprawnie : ' + ${email}">
 </p>
 
