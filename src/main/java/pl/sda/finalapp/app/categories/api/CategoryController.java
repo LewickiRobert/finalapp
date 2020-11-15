@@ -19,8 +19,10 @@ public class CategoryController {
     @GetMapping("/categories") //   /categories?searchText=ksiazka
     public String categoriesPage(@RequestParam(required = false) String searchText, Model model) {
         List<CategoryTreeDTO> categories = categoryService.findCategories(searchText);
+        List<CategoryDTO> parentsList = categoryService.findAll();
         model.addAttribute("categoriesData", categories);
         model.addAttribute("searchText", searchText);
+        model.addAttribute("parentsList",parentsList);
         return "categoriesPage";
     }
 

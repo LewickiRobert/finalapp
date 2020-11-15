@@ -1,5 +1,6 @@
 package pl.sda.finalapp.app.categories.persistence;
 
+import pl.sda.finalapp.app.categories.api.CategoryDTO;
 import pl.sda.finalapp.app.categories.api.CategoryTreeDTO;
 
 public class Category {
@@ -49,7 +50,11 @@ public class Category {
         return idCounter;
     }
 
-    public CategoryTreeDTO toDTO (){
-        return new CategoryTreeDTO(id, parrentId,categoryName);
+    public CategoryTreeDTO toTreeDTO(){
+        return new CategoryTreeDTO(id, parrentId, categoryName);
+    }
+
+    public CategoryDTO toDTO(){
+        return new CategoryDTO(id, categoryName);
     }
 }

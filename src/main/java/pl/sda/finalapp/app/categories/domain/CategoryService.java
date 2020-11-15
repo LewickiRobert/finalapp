@@ -1,6 +1,7 @@
 package pl.sda.finalapp.app.categories.domain;
 
 import org.springframework.stereotype.Service;
+import pl.sda.finalapp.app.categories.api.CategoryDTO;
 import pl.sda.finalapp.app.categories.api.CategoryTreeDTO;
 import pl.sda.finalapp.app.categories.persistence.Category;
 import pl.sda.finalapp.app.categories.persistence.CategoryDAO;
@@ -15,7 +16,7 @@ public class CategoryService {
 
     public List<CategoryTreeDTO> findCategories(String searchText) {
         List<CategoryTreeDTO> dtos = categoryDAO.getCategoryList().stream()
-                .map(c -> c.toDTO())
+                .map(c -> c.toTreeDTO())
                 .collect(Collectors.toList());
         if (searchText == null || searchText.isBlank()) {
             return dtos;
@@ -28,6 +29,19 @@ public class CategoryService {
                 });
 
         return dtos;
+    }
+
+    public void addCategory(String categoryName, Integer parentId) {
+        List<Category> categoryList = categoryDAO.getCategoryList();
+        Category newCategory = Category.applyFromText(categoryName);
+        newCategory.setParrentId(parentId);
+        categoryList.add(newCategory);
+    }
+
+    public List<CategoryDTO> findAll() {
+        return categoryDAO.getCategoryList().stream()
+                .map(c -> c.toDTO())
+                .collect(Collectors.toList());
     }
 
     private void openAllParents(CategoryTreeDTO child, List<CategoryTreeDTO> parents) {
@@ -43,13 +57,6 @@ public class CategoryService {
                     openAllParents(p, parents);
                     return p;
                 });
-    }
-
-    public void addCategory(String categoryName, Integer parentId) {
-        List<Category> categoryList = categoryDAO.getCategoryList();
-        Category newCategory = Category.applyFromText(categoryName);
-        newCategory.setParrentId(parentId);
-        categoryList.add(newCategory);
     }
 }
 

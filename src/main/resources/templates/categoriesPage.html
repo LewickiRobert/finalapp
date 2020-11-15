@@ -17,8 +17,11 @@
 <div id="container"></div>
 <hr>
 <form action="/categories" method="post">
-    <input name="categoryName" placeholder="Nazwa kategorii"><br>
-    <input name="parentId" placeholder="Podaj numer zbioru"><br>
+    <input name="categoryName" placeholder="Dodawana kategoria"><br>
+    <select name="parentId">
+        <option th:value="''" th:text="'Wybierz kategorię'"></option>
+        <option th:each="p : ${parentsList}" th:value="${p.id}" th:text="${p.id} + ' ' + ${p.categoryName}" id="parentsList"></option>
+    </select>
     <button>Dodaj kategorię</button>
 </form>
 <!--<div th:replace="fragments/footer :: footer"></div> -->
