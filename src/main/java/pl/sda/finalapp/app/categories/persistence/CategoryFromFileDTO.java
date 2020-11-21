@@ -3,7 +3,7 @@ package pl.sda.finalapp.app.categories.persistence;
 import pl.sda.finalapp.app.categories.api.CategoryDTO;
 import pl.sda.finalapp.app.categories.api.CategoryTreeDTO;
 
-public class Category {
+public class CategoryFromFileDTO {
     private Integer id;
     private String categoryName;
     private Integer parrentId;
@@ -11,12 +11,12 @@ public class Category {
 
     private static Integer idCounter = 0;
 
-    public static Category applyFromText(String t) {
-        Category category = new Category();
-        category.categoryName = t.trim();
-        category.id = ++idCounter;
-        category.depth = calculateDepth(t);
-        return category;
+    public static CategoryFromFileDTO applyFromText(String t) {
+        CategoryFromFileDTO categoryFromFileDTO = new CategoryFromFileDTO();
+        categoryFromFileDTO.categoryName = t.trim();
+        categoryFromFileDTO.id = ++idCounter;
+        categoryFromFileDTO.depth = calculateDepth(t);
+        return categoryFromFileDTO;
     }
 
     private static int calculateDepth(String t) {

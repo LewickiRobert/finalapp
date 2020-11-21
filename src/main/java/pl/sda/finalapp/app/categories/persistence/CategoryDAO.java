@@ -1,5 +1,9 @@
 package pl.sda.finalapp.app.categories.persistence;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import pl.sda.finalapp.app.categories.domain.Category;
+
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -11,13 +15,13 @@ import java.util.stream.Collectors;
 public class CategoryDAO {
     private static CategoryDAO INSTANCE;
 
-    private List<Category> categoryList = populateCategories();
+    private List<CategoryFromFileDTO> categoryFromFileDTOList = populateCategories();
 
     private CategoryDAO() {
     }
 
-    public List<Category> getCategoryList() {
-        return categoryList;
+    public List<CategoryFromFileDTO> getCategoryList() {
+        return categoryFromFileDTOList;
     }
 
     public static CategoryDAO getInstance() {
@@ -31,7 +35,7 @@ public class CategoryDAO {
         return INSTANCE;
     }
 
-    private List<Category> populateCategories() {
+    private List<CategoryFromFileDTO> populateCategories() {
         List<String> categoriesText;
         ClassLoader classLoader = this.getClass().getClassLoader();
         URL resourceURL = classLoader.getResource("categories.txt");
@@ -42,11 +46,11 @@ public class CategoryDAO {
             categoriesText = Collections.EMPTY_LIST;
         }
         Integer id = 1;
-        List<Category> categories = categoriesText.stream()
-                .map(t -> Category.applyFromText(t))
+        List<CategoryFromFileDTO> categories = categoriesText.stream()
+                .map(t -> CategoryFromFileDTO.applyFromText(t))
                 .collect(Collectors.toList());
 
-        Map<Integer, List<Category>> categoriesMap = categories.stream()
+        Map<Integer, List<CategoryFromFileDTO>> categoriesMap = categories.stream()
                 .collect(Collectors.groupingBy(e -> e.getDepth()));
 
 //        for (Category lc : categories) {
@@ -65,21 +69,21 @@ public class CategoryDAO {
         return categories;
     }
 
-    private void populateParentId(int depth, Map<Integer, List<Category>> categoriesMap) {
-        List<Category> children = categoriesMap.get(depth);
-        List<Category> parents = categoriesMap.get(depth - 1);
+    private void populateParentId(int depth, Map<Integer, List<CategoryFromFileDTO>> categoriesMap) {
+        List<CategoryFromFileDTO> children = categoriesMap.get(depth);
+        List<CategoryFromFileDTO> parents = categoriesMap.get(depth - 1);
         if (children == null) {
             return;
         }
         if (depth > 0) {
-            for (Category child : children) {
+            for (CategoryFromFileDTO child : children) {
                 chooseParent(parents, child);
             }
         }
         populateParentId(depth + 1, categoriesMap);
     }
 
-    private void chooseParent(List<Category> parents, Category child) {
+    private void chooseParent(List<CategoryFromFileDTO> parents, CategoryFromFileDTO child) {
         Integer childId = child.getId();
         Integer parentId = parents.stream()
                 .map(e -> e.getId())
@@ -90,4 +94,7 @@ public class CategoryDAO {
         child.setParrentId(parentId);
     }
 
+
 }
+
+

@@ -1,22 +1,28 @@
 package pl.sda.finalapp.app.categories.domain;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.sda.finalapp.app.categories.api.CategoryDTO;
 import pl.sda.finalapp.app.categories.api.CategoryTreeDTO;
-import pl.sda.finalapp.app.categories.persistence.Category;
+import pl.sda.finalapp.app.categories.persistence.CategoryFromFileDTO;
 import pl.sda.finalapp.app.categories.persistence.CategoryDAO;
+import pl.sda.finalapp.app.categories.persistence.CategoryRepository;
 
+import javax.annotation.PostConstruct;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class CategoryService {
 
-    private CategoryDAO categoryDAO = CategoryDAO.getInstance();
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     public List<CategoryTreeDTO> findCategories(String searchText) {
-        List<CategoryTreeDTO> dtos = categoryDAO.getCategoryList().stream()
+        List<CategoryTreeDTO> dtos = categoryRepository.findAll().stream()
                 .map(c -> c.toTreeDTO())
                 .collect(Collectors.toList());
         if (searchText == null || searchText.isBlank()) {
@@ -33,23 +39,17 @@ public class CategoryService {
     }
 
     public void addCategory(String categoryName, Integer parentId) {
-        List<Category> categoryList = categoryDAO.getCategoryList();
-        Category newCategory = Category.applyFromText(categoryName);
-        newCategory.setParrentId(parentId);
-        categoryList.add(newCategory);
+        categoryRepository.save(new Category(categoryName, parentId));
     }
 
     public List<CategoryDTO> findAll() {
-        return categoryDAO.getCategoryList().stream()
+        return categoryRepository.findAll().stream()
                 .map(c -> c.toDTO())
                 .collect(Collectors.toList());
     }
 
     public Optional<String> findCategoryNameById(Integer id) {
-        return categoryDAO.getCategoryList().stream()
-                .filter(c -> c.getId().equals(id))
-                .findFirst()
-                .map(c -> c.getCategoryName());
+        return categoryRepository.findCategoryNameById(id);
     }
 
     private void openAllParents(CategoryTreeDTO child, List<CategoryTreeDTO> parents) {
@@ -65,6 +65,54 @@ public class CategoryService {
                     openAllParents(p, parents);
                     return p;
                 });
+    }
+
+    @PostConstruct
+    void initializeCatrgories() {
+        if (categoryRepository.count() != 0) {
+            return;
+        }
+        CategoryDAO categoryDAO = CategoryDAO.getInstance();
+        Map<Integer, Integer> oldChildAndOldParentsIdsMap = new HashMap<>();
+        Map<Integer, Integer> newIdToOldIdMap = new HashMap<>();
+        List<CategoryFromFileDTO> categoryDTOList = categoryDAO.getCategoryList();
+        saveCategoryAndPopulateMaps(oldChildAndOldParentsIdsMap, newIdToOldIdMap, categoryDTOList);
+        populateParentsIds(oldChildAndOldParentsIdsMap, newIdToOldIdMap);
+
+    }
+
+    private void populateParentsIds(Map<Integer, Integer> oldChildAndOldParentsIdsMap, Map<Integer, Integer> newIdToOldIdMap) {
+        for (Integer newId : newIdToOldIdMap.keySet()) {
+            Category category = categoryRepository.findById(newId).orElseThrow(() -> new RuntimeException("błąd"));
+            Integer oldId = newIdToOldIdMap.get(newId);
+            Integer oldParentId = oldChildAndOldParentsIdsMap.get(oldId);
+            Integer newParentId = newIdToOldIdMap.entrySet().stream()
+                    .filter(e -> e.getValue().equals(oldParentId))
+                    .map(e -> e.getKey())
+                    .findFirst()
+                    .orElse(null);
+            if (newParentId == null) {
+                continue;
+            }
+            category.applyParentId(newParentId);
+            categoryRepository.save(category);
+        }
+    }
+
+    private void saveCategoryAndPopulateMaps(Map<Integer, Integer> oldChildAndOldParentsIdsMap, Map<Integer, Integer> newIdToOldIdMap, List<CategoryFromFileDTO> categoryDTOList) {
+        for (CategoryFromFileDTO dto : categoryDTOList) {
+            oldChildAndOldParentsIdsMap.put(dto.getId(), dto.getParrentId());
+            Category category = new Category(dto.getCategoryName());
+            Category savedCategory = categoryRepository.save(category);
+            newIdToOldIdMap.put(savedCategory.getId(), dto.getId());
+        }
+    }
+
+    public void moveCategory(Integer newParentId, Integer movedId) {
+        final Category category = categoryRepository.findById(movedId)
+                .orElseThrow(() -> new RuntimeException("Kategoria o id:" + movedId + " nie została odnaleziona"))
+                .applyParentId(newParentId);
+        categoryRepository.save(category);
     }
 }
 
