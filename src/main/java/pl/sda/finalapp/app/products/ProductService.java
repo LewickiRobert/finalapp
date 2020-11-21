@@ -2,6 +2,7 @@ package pl.sda.finalapp.app.products;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pl.sda.finalapp.app.categories.api.CategoryDTO;
 import pl.sda.finalapp.app.categories.domain.CategoryService;
 
 import java.util.List;
@@ -45,5 +46,19 @@ public class ProductService {
                 .orElseThrow(() -> new ProductNotFoundExeption(productDTO.getId()));
         product.apply(productDTO);
         productRepository.save(product);
+    }
+
+    public List<ProductListDTO> allProducts(String searchText,
+                                        ProductType productType,
+                                        Integer categoryId) {
+        List<Product> products = null;
+        if (searchText != null && !searchText.isBlank() && productType != null && categoryId != null) {
+            products = productRepository.findProducts(searchText, productType, categoryId);
+        }else {
+            products = productRepository.findAll();
+        }
+        return products.stream()
+                .map(p -> createProductListDTO(p))
+                .collect(Collectors.toList());
     }
 }
