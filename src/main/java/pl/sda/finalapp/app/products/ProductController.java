@@ -1,13 +1,18 @@
 package pl.sda.finalapp.app.products;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pl.sda.finalapp.app.categories.domain.CategoryService;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Controller
 public class ProductController {
@@ -23,34 +28,57 @@ public class ProductController {
     public String products(@RequestParam(required = false) String searchText,
                            @RequestParam(required = false) ProductType productType,
                            @RequestParam(required = false) Integer categoryId,
+                           @RequestParam(defaultValue = "1") Integer page,
+                           @RequestParam(defaultValue = "5") Integer size,
                            Model model) {
-        productService.allProducts();
+        Page<ProductListDTO> products = productService.allProducts(searchText, productType, categoryId, page, size);
+        model.addAttribute("productsPage", products);
+        int totalPages = products.getTotalPages();
+        if (totalPages > 0) {
+            List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
+                    .boxed()
+                    .collect(Collectors.toList());
+            model.addAttribute("pageNumbers", pageNumbers);
+        }
+        model.addAttribute("searchText", searchText);
+        model.addAttribute("productType", productType);
+        model.addAttribute("categoryId", categoryId);
+        String s = ServletUriComponentsBuilder
+                .fromCurrentRequestUri()
+                .scheme("http")
+                .queryParam("searchText", searchText)
+                .queryParam("productType", productType)
+                .queryParam("categoryId", categoryId)
+                .build().toUriString();
+        model.addAttribute("urlBegin", s);
+
         model.addAttribute("productTypesList", ProductType.values());
         model.addAttribute("categoriesList", categoryService.findAll());
-        model.addAttribute("productsList", productService.allProducts(searchText,productType,categoryId));
         return "productsPage";
 
     }
-    @PostMapping(value = "/products",consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public String addProduct (@RequestParam String title,
-                              @RequestParam String description,
-                              @RequestParam String pictureUrl,
-                              @RequestParam BigDecimal price,
-                              @RequestParam ProductType productType,
-                              @RequestParam Integer categoryId){
+
+    @PostMapping(value = "/products", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public String addProduct(@RequestParam String title,
+                             @RequestParam String description,
+                             @RequestParam String pictureUrl,
+                             @RequestParam BigDecimal price,
+                             @RequestParam ProductType productType,
+                             @RequestParam Integer categoryId) {
         productService.addProduct(new ProductDTO(title, description, pictureUrl, price, productType, categoryId));
         return "redirect:/products";
     }
 
     @GetMapping("/products/{id}")
-    public String editForm(@PathVariable Integer id, Model model){
+    public String editForm(@PathVariable Integer id, Model model) {
         model.addAttribute("product", productService.findProductById(id));
         model.addAttribute("productTypesList", ProductType.values());
         model.addAttribute("categoriesList", categoryService.findAll());
         return "productEditPage";
     }
+
     @PostMapping("/products/{id}")
-    public String editProduct(@ModelAttribute ProductDTO product, @PathVariable Integer id, Model model){
+    public String editProduct(@ModelAttribute ProductDTO product, @PathVariable Integer id, Model model) {
         productService.editProduct(product);
         return "redirect:/products";
 

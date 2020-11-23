@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Witamy</title>
+    <div th:replace="/fragments/header :: header-css"></div>
 </head>
 <body>
 <div th:replace="/fragments/header :: headerFragment"></div>
 <p th:text="'Zostałeś zarejestorwany poprawnie : ' + ${email}">
 </p>
-
+<div th:replace="fragments/footer :: footer"></div>
 </body>
 </html>

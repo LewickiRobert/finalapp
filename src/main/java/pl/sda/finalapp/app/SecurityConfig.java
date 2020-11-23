@@ -24,13 +24,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers("/login").permitAll() //każdy może wejść
                 .antMatchers("/registration").permitAll() //każdy może wejść
+                .antMatchers("/css/**").permitAll() //każdy może wejść
+                .antMatchers("/categories", "/categories/**").hasAuthority("ROLE_ADMIN") //każdy może wejść
+               // .antMatchers("/categories", "/categories/**").hasRole("ADMIN") //każdy może wejść
                 .anyRequest().authenticated()
                 .and()
                 .csrf().disable()
                 .formLogin()
                 .loginPage("/login")
                 .usernameParameter("username")
-                .passwordParameter("pasword")
+                .passwordParameter("password")
                 .loginProcessingUrl("/login-process")
                 .failureUrl("/login?error=1")
                 .defaultSuccessUrl("/")
@@ -43,12 +46,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.jdbcAuthentication()
-                .usersByUsernameQuery("SELECT u.e_mail, u.password_hash, 1 FROM User u WHERE u.e_mail = ?")
+                .usersByUsernameQuery("SELECT u.e_mail, u.password_hash, 1 FROM User u WHERE u.e_mail=?")
                 .authoritiesByUsernameQuery("SELECT u.e_mail, r.role_name, 1 " +
                         "FROM User u " +
-                        "LEFT JOIN User_role ur ON u.id = ur.user_id" +
-                        "LEFT JOIN Role r ON ur.role_id = r.id" +
-                        "WHERE u.e_mail = ?")
+                        "LEFT JOIN Users_roles ur on u.id = ur.user_id " +
+                        "LEFT JOIN Role r on ur.roles_id = r.id " +
+                        "WHERE u.e_mail=?")
                 .dataSource(dataSource)
                 .passwordEncoder(passwordEncoder);
     }

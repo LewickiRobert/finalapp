@@ -38,7 +38,7 @@ public class CategoryDAO {
     private List<CategoryFromFileDTO> populateCategories() {
         List<String> categoriesText;
         ClassLoader classLoader = this.getClass().getClassLoader();
-        URL resourceURL = classLoader.getResource("categories.txt");
+        URL resourceURL = classLoader.getResource("kategorie.txt");
         try {
             categoriesText = Files.readAllLines(Paths.get(resourceURL.toURI()));
         } catch (IOException | URISyntaxException e) {

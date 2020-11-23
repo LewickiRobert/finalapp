@@ -26,4 +26,8 @@ public class UserService {
         user.addRole(roleRepository.findByRoleName(Role.USER));
         userRepository.save(user);
     }
+
+    public Optional<User> findUserByEMail(String userEMail) {
+        return userRepository.findByEMail(userEMail);
+    }
 }
